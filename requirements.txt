@@ -1,0 +1,12 @@
+pymilvus
+transformers
+huggingface_hub
+torch
+numpy
+scipy
+rank-bm25
+pypdf
+python-docx
+tqdm
+requests
+tenacity
