@@ -8,16 +8,19 @@ from ..utils.text import normalize_text
 
 class PdfParser(BaseParser):
     def parse(self, file_path: str):
-        # Extract text per page to preserve page boundaries.
+        # Extract text per page and join to a single document.
         reader = PdfReader(file_path)
         file_name = os.path.basename(file_path)
-        documents = []
-        for i, page in enumerate(reader.pages, start=1):
+        page_texts = []
+        for page in reader.pages:
             text = page.extract_text() or ""
             text = normalize_text(text)
             if not text:
                 continue
-            documents.append(
-                Document(file_path=file_path, file_name=file_name, text=text)
-            )
-        return documents
+            page_texts.append(text)
+
+        if not page_texts:
+            return None
+
+        full_text = "\n".join(page_texts)
+        return Document(file_path=file_path, file_name=file_name, text=full_text)

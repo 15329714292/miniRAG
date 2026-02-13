@@ -14,6 +14,6 @@ class DocxParser(BaseParser):
         paragraphs = [p.text for p in doc.paragraphs if p.text]
         text = normalize_text("\n".join(paragraphs))
         if not text:
-            return []
-        # Build a single document record for the file.
-        return [Document(file_path=file_path, file_name=file_name, text=text)]
+            return None
+
+        return Document(file_path=file_path, file_name=file_name, text=text)

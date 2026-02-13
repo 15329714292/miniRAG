@@ -11,6 +11,6 @@ class TextParser(BaseParser):
         text = normalize_text(read_text_file(file_path))
         file_name = os.path.basename(file_path)
         if not text:
-            return []
-        # Wrap the whole file as a single document.
-        return [Document(file_path=file_path, file_name=file_name, text=text)]
+            return None
+
+        return Document(file_path=file_path, file_name=file_name, text=text)

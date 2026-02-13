@@ -6,9 +6,9 @@ from .utils.schema import Chunk, Sentence
 from .utils.text import normalize_text, split_sentences
 
 
-def semantic_chunk(doc, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
+def semantic_chunk(document, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
     # Normalize and split the document into sentences.
-    text = normalize_text(doc.text)
+    text = normalize_text(document.text)
     sentences = split_sentences(text)
     if not sentences:
         return [], []
@@ -19,14 +19,28 @@ def semantic_chunk(doc, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
     chunks: List[Chunk] = []
     sentences_out: List[Sentence] = []
 
+    # Use sliding window to smooth similarity and avoid single-point fluctuations.
+    window_size = config.chunk_window_size
     sims = []
-    for i in range(1, len(sentences)):
-        sims.append(float(np.dot(embeddings[i], embeddings[i - 1])))
+    for i in range(len(embeddings) - 1):
+        # Calculate average embedding of previous window
+        start_prev = max(0, i - window_size + 1)
+        prev_window = embeddings[start_prev:i+1].mean(axis=0)
+        
+        # Calculate average embedding of next window
+        end_next = min(len(embeddings), i + window_size + 1)
+        next_window = embeddings[i+1:end_next].mean(axis=0)
+        
+        # Compute similarity between two windows
+        sim = np.dot(prev_window, next_window)
+        sims.append(sim)
+    
+    sims = np.array(sims)
 
-    if sims:
-        # Use a percentile of adjacent similarities as the split threshold.
+    if len(sims) > 0:
+        # Use a percentile of window similarities as the split threshold.
         percentile = min(max(config.chunk_sim_percentile, 0.0), 100.0)
-        sim_threshold = float(np.percentile(np.array(sims, dtype="float32"), percentile))
+        sim_threshold = float(np.percentile(sims, percentile))
     else:
         sim_threshold = -1.0
 
@@ -38,24 +52,21 @@ def semantic_chunk(doc, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
     for i, sent in enumerate(sentences):
         sent_len = len(sent)
         if current_sent_texts:
-            sim = float(np.dot(embeddings[i], embeddings[i - 1]))
-            should_split = (
-                current_len >= config.chunk_min_chars
-                and sim <= sim_threshold
-            ) or (current_len + sent_len > config.chunk_max_chars)
-            if should_split:
-                # Finalize the current chunk before starting a new one.
-                chunk_text = " ".join(current_sent_texts)
-                chunks.append(
-                    Chunk(
-                        chunk_id=current_chunk_id,
-                        file_name=doc.file_name,
-                        text=chunk_text,
+                sim = sims[i-1]
+                is_semantic_break = sim <= sim_threshold and current_len >= config.chunk_min_chars
+                is_too_long = current_len + sent_len > config.chunk_max_chars
+
+                if is_semantic_break or is_too_long:
+                    chunks.append(
+                        Chunk(
+                            chunk_id=current_chunk_id,
+                            file_name=document.file_name,
+                            text=" ".join(current_sent_texts)
+                        )
                     )
-                )
-                current_chunk_id += 1
-                current_sent_texts = []
-                current_len = 0
+                    current_chunk_id += 1
+                    current_sent_texts = []
+                    current_len = 0
 
         current_sent_texts.append(sent)
         current_len += sent_len
@@ -63,7 +74,7 @@ def semantic_chunk(doc, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
             Sentence(
                 sent_id=sent_id,
                 chunk_id=current_chunk_id,
-                file_name=doc.file_name,
+                file_name=document.file_name,
                 text=sent,
             )
         )
@@ -71,12 +82,11 @@ def semantic_chunk(doc, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
 
     if current_sent_texts:
         # Flush the remaining sentence buffer into a final chunk.
-        chunk_text = " ".join(current_sent_texts)
         chunks.append(
             Chunk(
                 chunk_id=current_chunk_id,
-                file_name=doc.file_name,
-                text=chunk_text,
+                file_name=document.file_name,
+                text=" ".join(current_sent_texts),
             )
         )
 

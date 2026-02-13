@@ -38,19 +38,20 @@ def ingest(data_dir: str, index_dir: str, config: Config) -> None:
 
     for file_path in files:
         parser = get_parser(file_path)
-        documents = parser.parse(file_path)
-        for doc in documents:
-            # Chunk document into semantically grouped sentences.
-            chunks, sentences = semantic_chunk(doc, embedder, config)
-            for c in chunks:
-                c.chunk_id += chunk_id
-            for s in sentences:
-                s.sent_id += sent_id
-                s.chunk_id += chunk_id
-            chunk_id += len(chunks)
-            sent_id += len(sentences)
-            all_chunks.extend(chunks)
-            all_sentences.extend(sentences)
+        document = parser.parse(file_path)
+        if document is None:
+            continue
+        # Chunk document into semantically grouped sentences.
+        chunks, sentences = semantic_chunk(document, embedder, config)
+        for c in chunks:
+            c.chunk_id += chunk_id
+        for s in sentences:
+            s.sent_id += sent_id
+            s.chunk_id += chunk_id
+        chunk_id += len(chunks)
+        sent_id += len(sentences)
+        all_chunks.extend(chunks)
+        all_sentences.extend(sentences)
 
     chunk_texts = [c.text for c in all_chunks]
     sent_texts = [s.text for s in all_sentences]

@@ -1,4 +1,5 @@
 import re
+import jieba
 
 
 _WHITESPACE_RE = re.compile(r"\s+")
@@ -26,7 +27,8 @@ def tokenize_for_bm25(text: str) -> list:
     tokens = []
     for match in _MIXED_TOKEN_RE.findall(text.lower()):
         if _CJK_RUN_RE.fullmatch(match):
-            tokens.extend(list(match))
+            # Use jieba to segment Chinese text
+            tokens.extend(jieba.cut(match, cut_all=False))
         else:
             tokens.extend(_WORD_TOKEN_RE.findall(match))
     return tokens

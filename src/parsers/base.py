@@ -10,6 +10,6 @@ class Document:
 
 
 class BaseParser:
-    def parse(self, file_path: str) -> List[Document]:
+    def parse(self, file_path: str) -> Document:
         # Subclasses should implement format-specific parsing.
         raise NotImplementedError

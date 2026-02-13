@@ -18,6 +18,7 @@ class Config:
     chunk_max_chars: int = 1200  # Max characters per chunk.
     chunk_min_chars: int = 400  # Min characters before allowing a split.
     chunk_sim_percentile: float = 50.0  # Similarity percentile used as split threshold.
+    chunk_window_size: int = 3  # Sliding window size for smoothing similarity calculation.
 
     bm25_k1: float = 1.5
     bm25_b: float = 0.75
