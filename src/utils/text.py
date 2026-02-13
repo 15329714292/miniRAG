@@ -2,8 +2,10 @@ import re
 
 
 _WHITESPACE_RE = re.compile(r"\s+")
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+|\n+")
-_TOKEN_RE = re.compile(r"\b\w+\b")
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+|\n+|(?<=[。！？；])")
+_WORD_TOKEN_RE = re.compile(r"\b\w+\b")
+_CJK_RUN_RE = re.compile(r"[\u4e00-\u9fff]+")
+_MIXED_TOKEN_RE = re.compile(r"[\u4e00-\u9fff]+|\b\w+\b")
 
 
 def normalize_text(text: str) -> str:
@@ -20,5 +22,11 @@ def split_sentences(text: str) -> list:
 
 
 def tokenize_for_bm25(text: str) -> list:
-    # Tokenize on word boundaries for BM25.
-    return _TOKEN_RE.findall(text.lower())
+    # Tokenize mixed English/CJK text for BM25.
+    tokens = []
+    for match in _MIXED_TOKEN_RE.findall(text.lower()):
+        if _CJK_RUN_RE.fullmatch(match):
+            tokens.extend(list(match))
+        else:
+            tokens.extend(_WORD_TOKEN_RE.findall(match))
+    return tokens

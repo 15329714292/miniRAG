@@ -13,5 +13,4 @@ class TextParser(BaseParser):
         if not text:
             return []
         # Wrap the whole file as a single document.
-        doc_id = f"{file_name}::p1"
-        return [Document(doc_id=doc_id, file_path=file_path, file_name=file_name, text=text)]
+        return [Document(file_path=file_path, file_name=file_name, text=text)]

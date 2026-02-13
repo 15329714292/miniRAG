@@ -17,9 +17,7 @@ class PdfParser(BaseParser):
             text = normalize_text(text)
             if not text:
                 continue
-            # Use page number in the document id for traceability.
-            doc_id = f"{file_name}::p{i}"
             documents.append(
-                Document(doc_id=doc_id, file_path=file_path, file_name=file_name, text=text)
+                Document(file_path=file_path, file_name=file_name, text=text)
             )
         return documents

@@ -4,7 +4,6 @@ from dataclasses import dataclass
 @dataclass
 class Chunk:
     chunk_id: int
-    doc_id: str
     file_name: str
     text: str
 
@@ -12,7 +11,6 @@ class Chunk:
         # Serialize chunk metadata for storage.
         return {
             "chunk_id": self.chunk_id,
-            "doc_id": self.doc_id,
             "file_name": self.file_name,
             "text": self.text,
         }
@@ -22,7 +20,6 @@ class Chunk:
 class Sentence:
     sent_id: int
     chunk_id: int
-    doc_id: str
     file_name: str
     text: str
 
@@ -31,7 +28,6 @@ class Sentence:
         return {
             "sent_id": self.sent_id,
             "chunk_id": self.chunk_id,
-            "doc_id": self.doc_id,
             "file_name": self.file_name,
             "text": self.text,
         }
@@ -40,7 +36,6 @@ class Sentence:
 @dataclass
 class Candidate:
     key: str
-    doc_id: str
     file_name: str
     text: str
     score: float

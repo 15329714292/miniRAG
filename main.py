@@ -5,7 +5,7 @@ import numpy as np
 from typing import List
 
 from src.chunking import semantic_chunk
-from config import RAGConfig
+from config import Config
 from src.embedding import EmbeddingModel
 from src.generation import DeepSeekClient, generate_answer
 from src.index.bm25_index import BM25Index
@@ -19,7 +19,7 @@ from src.utils.io import find_files
 from src.utils.schema import Chunk, Sentence
 
 
-def ingest(data_dir: str, index_dir: str, config: RAGConfig) -> None:
+def ingest(data_dir: str, index_dir: str, config: Config) -> None:
     # Prepare index output directory.
     os.makedirs(index_dir, exist_ok=True)
 
@@ -95,10 +95,7 @@ def ingest(data_dir: str, index_dir: str, config: RAGConfig) -> None:
 
     # Persist chunk/sentence metadata for later lookup.
     save_jsonl(os.path.join(index_dir, "meta_chunk.jsonl"), [c.to_dict() for c in all_chunks])
-    save_jsonl(
-        os.path.join(index_dir, "meta_sentence.jsonl"),
-        [s.to_dict() for s in all_sentences],
-    )
+    save_jsonl(os.path.join(index_dir, "meta_sentence.jsonl"), [s.to_dict() for s in all_sentences])
 
     # Build and store the BM25 index over chunk texts.
     bm25_index = BM25Index.from_texts(
@@ -126,7 +123,7 @@ def ingest(data_dir: str, index_dir: str, config: RAGConfig) -> None:
     print(f"Ingested {len(files)} files, {len(all_chunks)} chunks.")
 
 
-def query(index_dir: str, query_text: str, top_k: int, config: RAGConfig) -> None:
+def query(index_dir: str, query_text: str, top_k: int, config: Config) -> None:
     # Load manifest for model and index settings.
     manifest = load_json(os.path.join(index_dir, "manifest.json"))
     if not manifest:
@@ -207,7 +204,7 @@ def query(index_dir: str, query_text: str, top_k: int, config: RAGConfig) -> Non
     print(answer)
     print("\nSources:")
     for i, item in enumerate(final, start=1):
-        snippet = item.text[:300].replace("\n", " ")
+        snippet = item.text[:].replace("\n", " ")
         print(f"[{i}] {item.file_name} | {snippet}")
 
 
@@ -230,7 +227,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
-    config = RAGConfig()
+    config = Config()
 
     if args.command == "ingest":
         ingest(args.data_dir, args.index_dir, config)

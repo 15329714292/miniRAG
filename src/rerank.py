@@ -60,7 +60,6 @@ class Reranker:
             reranked.append(
                 Candidate(
                     key=cand.key,
-                    doc_id=cand.doc_id,
                     file_name=cand.file_name,
                     text=cand.text,
                     score=float(score),

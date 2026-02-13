@@ -4,7 +4,6 @@ from typing import List
 
 @dataclass
 class Document:
-    doc_id: str
     file_path: str
     file_name: str
     text: str

@@ -3,7 +3,7 @@ import os
 
 
 @dataclass
-class RAGConfig:
+class Config:
     embedding_model: str = "BAAI/bge-base-zh-v1.5"
     reranker_model: str = "BAAI/bge-reranker-base"
     deepseek_base_url: str = "https://api.deepseek.com/v1"
@@ -33,7 +33,7 @@ class RAGConfig:
     recommended_reranker_model: str = "BAAI/bge-reranker-v2-m3"
 
 
-def load_api_key(config: RAGConfig) -> str:
+def load_api_key(config: Config) -> str:
     # Read API key from the configured environment variable.
     api_key = os.getenv(config.deepseek_api_key_env)
     if not api_key:

@@ -16,5 +16,4 @@ class DocxParser(BaseParser):
         if not text:
             return []
         # Build a single document record for the file.
-        doc_id = f"{file_name}::p1"
-        return [Document(doc_id=doc_id, file_path=file_path, file_name=file_name, text=text)]
+        return [Document(file_path=file_path, file_name=file_name, text=text)]

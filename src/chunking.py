@@ -49,7 +49,6 @@ def semantic_chunk(doc, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
                 chunks.append(
                     Chunk(
                         chunk_id=current_chunk_id,
-                        doc_id=doc.doc_id,
                         file_name=doc.file_name,
                         text=chunk_text,
                     )
@@ -64,7 +63,6 @@ def semantic_chunk(doc, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
             Sentence(
                 sent_id=sent_id,
                 chunk_id=current_chunk_id,
-                doc_id=doc.doc_id,
                 file_name=doc.file_name,
                 text=sent,
             )
@@ -77,7 +75,6 @@ def semantic_chunk(doc, embedder, config) -> Tuple[List[Chunk], List[Sentence]]:
         chunks.append(
             Chunk(
                 chunk_id=current_chunk_id,
-                doc_id=doc.doc_id,
                 file_name=doc.file_name,
                 text=chunk_text,
             )

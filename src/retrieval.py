@@ -22,7 +22,6 @@ def _dense_results(query_vec, index, meta, top_k, source) -> List[Candidate]:
         results.append(
             Candidate(
                 key=_candidate_key(item),
-                doc_id=item.get("doc_id", ""),
                 file_name=item.get("file_name", ""),
                 text=item.get("text", ""),
                 score=float(score),
@@ -40,7 +39,6 @@ def _bm25_results(query, bm25_index, top_k) -> List[Candidate]:
         results.append(
             Candidate(
                 key=_candidate_key(item),
-                doc_id=item.get("doc_id", ""),
                 file_name=item.get("file_name", ""),
                 text=item.get("text", ""),
                 score=float(res["score"]),
@@ -65,7 +63,6 @@ def _rrf_fuse(result_lists: List[List[Candidate]], rrf_k: int) -> List[Candidate
         fused.append(
             Candidate(
                 key=cand.key,
-                doc_id=cand.doc_id,
                 file_name=cand.file_name,
                 text=cand.text,
                 score=score,

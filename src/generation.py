@@ -3,12 +3,12 @@ from typing import List
 import requests
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from config import RAGConfig, load_api_key
+from config import Config, load_api_key
 from .utils.schema import Candidate
 
 
 class DeepSeekClient:
-    def __init__(self, config: RAGConfig):
+    def __init__(self, config: Config):
         # Read API credentials and endpoint settings.
         self.api_key = load_api_key(config)
         self.base_url = config.deepseek_base_url.rstrip("/")
